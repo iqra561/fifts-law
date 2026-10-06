@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Fitts' Law Experiment</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 20px; background: #f4f6f8; }
+    #container { position: relative; width: 800px; height: 300px; margin: 20px auto; background: #ffffff; border: 2px solid #ccc; border-radius: 8px; }
+    .target { position: absolute; top: 50px; height: 200px; background: #007bff; cursor: pointer; border-radius: 4px; }
+    #log { margin-top: 20px; font-size: 14px; text-align: left; width: 800px; margin: 20px auto; background: #ffffff; padding: 15px; border: 1px solid #ddd; border-radius: 6px; height: 200px; overflow-y: auto; }
+    button { padding: 8px 16px; font-size: 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    input { padding: 5px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>Fitts' Law Interactive Experiment</h2>
+  <p>
+    Distance (D): <input id="dVal" value="400" size="4"> px | 
+    Width (W): <input id="wVal" value="50" size="4"> px 
+    <button onclick="startTest()">Start Test</button>
+  </p>
+  <div id="container">
+    <div id="t1" class="target" onclick="handleClick(0)"></div>
+    <div id="t2" class="target" onclick="handleClick(1)"></div>
+  </div>
+  <div id="log"><b>Click Log (MT in ms):</b><br>D aur W ki values set karke 'Start Test' click karein.<br></div>
+
+  <script>
+    let clicks = 0, lastTime = 0, times = [], active = 0;
+    function startTest() {
+      let D = parseInt(document.getElementById('dVal').value);
+      let W = parseInt(document.getElementById('wVal').value);
+      let t1 = document.getElementById('t1');
+      let t2 = document.getElementById('t2');
+      t1.style.width = W + 'px'; t2.style.width = W + 'px';
+      t1.style.left = (400 - D/2 - W) + 'px';
+      t2.style.left = (400 + D/2) + 'px';
+      clicks = 0; times = [];
+      document.getElementById('log').innerHTML = "<b>Click Log (MT in ms):</b><br>Test Started! Green target par click karein...<br>";
+      active = 0; highlight();
+    }
+    function highlight() {
+      document.getElementById('t1').style.background = active === 0 ? '#28a745' : '#007bff';
+      document.getElementById('t2').style.background = active === 1 ? '#28a745' : '#007bff';
+    }
+    function handleClick(id) {
+      if(id !== active) return;
+      let now = performance.now();
+      if(clicks > 0) {
+        let mt = Math.round(now - lastTime);
+        times.push(mt);
+        document.getElementById('log').innerHTML += `Trial ${clicks}: ${mt} ms ${clicks <= 3 ? '(Warm-up - ignore)' : ''}<br>`;
+      }
+      lastTime = now;
+      clicks++;
+      active = active === 0 ? 1 : 0;
+      highlight();
+    }
+  </script>
+</body>
+</html>
